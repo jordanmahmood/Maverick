@@ -1,0 +1,30 @@
+[project]
+name = "maverick"
+version = "0.1.0"
+description = "Hands-free, camera-checked step guidance for smart glasses"
+requires-python = ">=3.11"
+dependencies = [
+    "anthropic>=0.80",
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "pydantic>=2.7",
+    "openai>=3.57.0",
+    "pymupdf>=2.1",
+    "httpx>=0.28.1",
+    "python-dotenv>=1.2.4",
+    "pillow>=13.0.0",
+    "numpy>=2.4.6",
+    "opencv-python-headless>=5.1.0.95",
+    "ultralytics>=8.4.216",
+    "pillow-heif>=1.8.1",
+    "onnx>=1.23.2",
+    "onnxslim>=0.1.99",
+]
+
+[dependency-groups]
+dev = ["pytest>=8", "pytest-asyncio>=0.24"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+pythonpath = ["."]

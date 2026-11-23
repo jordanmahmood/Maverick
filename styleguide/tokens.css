@@ -1,0 +1,100 @@
+/*
+ * Maverick design tokens.
+ * Copied from ui/src/index.css (the page and the phone app) and trimmed to what is used.
+ * Standalone: link this file and use the variables. One dark theme, no light variant.
+ *
+ * Font: Instrument Sans (variable), self-hosted via @fontsource-variable/instrument-sans.
+ */
+:root {
+  color-scheme: dark;
+
+  /* Surfaces */
+  --background: #050505;          /* the canvas, everywhere */
+  --surface: #0b0b0b;             /* cards */
+  --surface-2: #111111;
+  --secondary: #161616;           /* quiet buttons */
+  --muted: #141414;
+  --accent: #1a1a1a;              /* hover fill (not the brand accent) */
+
+  /* Type */
+  --foreground: #f2f2f2;          /* text, and the default (white) button */
+  --primary: #f2f2f2;
+  --primary-foreground: #050505;
+  --muted-foreground: #9a9a9a;    /* secondary text */
+  --subtle: #6b6b6b;              /* faint text */
+
+  /* Signal colours */
+  --brand: #39ff14;               /* the one accent: the thing to act on, and success */
+  --brand-foreground: #050505;    /* text on the accent */
+  --warn: #ffc266;                /* warnings only */
+  --destructive: #ff5c5c;         /* "remove this" and "wrong" only */
+
+  /* Lines */
+  --border: rgb(255 255 255 / 0.09);
+  --line: rgb(255 255 255 / 0.06);    /* hairlines between rows */
+  --input: rgb(255 255 255 / 0.12);
+  --ring: rgb(57 255 20 / 0.55);      /* focus ring */
+
+  /* Shape */
+  --radius: 0.75rem;                          /* 12px */
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);    /* cards */
+
+  /* Type family */
+  --font-sans: "Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif;
+
+  /* Motion */
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --animate-pulse-dot: pulse-dot 2s ease-in-out infinite;       /* live status dot */
+  --animate-ring: ring-draw 300ms var(--ease) forwards;         /* step done: the ring */
+  --animate-tick: tick-draw 200ms var(--ease) 300ms forwards;   /* ...then the tick */
+  --animate-rise: rise 320ms var(--ease);                       /* pictures appearing */
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+@keyframes ring-draw { to { stroke-dashoffset: 0; } }
+@keyframes tick-draw { to { stroke-dashoffset: 0; } }
+@keyframes rise {
+  0% { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+html {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+h1, h2, h3, h4 {
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+p { text-wrap: pretty; }
+::selection {
+  background: var(--brand);
+  color: var(--brand-foreground);
+}
+
+/* Numbers that change in place (steps, percentages, times) never jiggle. */
+.num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

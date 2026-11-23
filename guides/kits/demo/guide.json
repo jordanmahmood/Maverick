@@ -1,0 +1,120 @@
+{
+  "title": "EV car \u00b7 final assembly",
+  "kit": "demo",
+  "source": null,
+  "steps": [
+    {
+      "id": 1,
+      "say": "Put the chassis in front of you",
+      "piece": "chassis",
+      "cls": "chassis",
+      "onto": "",
+      "find": "the LEGO car chassis: a flat car base on four black rubber wheels (two have red hubs), with lime green, red, grey, tan and black bricks on top and no bodywork over it",
+      "place": "flat on the table in front of the builder, wheels down",
+      "check": "The chassis with its four black wheels sits on the table, wheels down, clearly in view.",
+      "detail": "Find the flat base with four wheels and set it down in front of you, wheels on the table.",
+      "common_mistakes": [
+        "chassis upside down"
+      ],
+      "refs": [],
+      "done_refs": [],
+      "parts": [],
+      "image": null,
+      "parts_image": null,
+      "page": null,
+      "where": "",
+      "small": false
+    },
+    {
+      "id": 2,
+      "say": "Attach the black hood to the chassis",
+      "piece": "black hood",
+      "cls": "hood",
+      "onto": "chassis",
+      "find": "the black hood section: a rounded, mostly black LEGO car body section with smooth curved black panels, two small grey slope bricks and wheel-arch cut-outs underneath",
+      "place": "pressed down onto the studs at one end of the chassis, so it covers that end between the wheels",
+      "check": "The black hood section is attached on one end of the chassis, sitting flush on the studs, not loose beside it.",
+      "detail": "Pick up the black hood section and press it down onto the studs at the end of the chassis.",
+      "common_mistakes": [
+        "hood only resting on top, not pressed down",
+        "hood on the wrong end"
+      ],
+      "refs": [],
+      "done_refs": [],
+      "parts": [],
+      "image": null,
+      "parts_image": null,
+      "page": null,
+      "where": "front",
+      "small": false
+    },
+    {
+      "id": 3,
+      "say": "Attach the red rear to the chassis",
+      "piece": "red rear",
+      "cls": "rear",
+      "onto": "chassis",
+      "find": "the red rear section: red curved LEGO car bodywork with rounded wheel arches, two or three long thin black bars sticking out of it, and a small black panel standing up on a hinge",
+      "place": "pressed down onto the studs at the other end of the chassis, opposite the black hood",
+      "check": "The red rear section is attached on the chassis at the end opposite the black hood, sitting flush.",
+      "detail": "Pick up the red rear section and press it down onto the open end of the chassis, opposite the black hood.",
+      "common_mistakes": [
+        "rear section not pressed down",
+        "rear section facing the wrong way"
+      ],
+      "refs": [],
+      "done_refs": [],
+      "parts": [],
+      "image": null,
+      "parts_image": null,
+      "page": null,
+      "where": "rear",
+      "small": false
+    },
+    {
+      "id": 4,
+      "say": "Seat the minifigure in the driver's seat",
+      "piece": "minifigure",
+      "cls": "minifigure",
+      "onto": "chassis",
+      "find": "the LEGO minifigure: yellow head with black hair and glasses, orange-brown jacket, grey legs",
+      "place": "in the driver's seat in the middle of the car, between the black hood and the red rear",
+      "check": "The minifigure is inside the car's cockpit, in the seat between the black hood and the red rear, not lying on top and not in a hand.",
+      "detail": "Bend the minifigure's legs to sit and press it into the seat in the middle of the car.",
+      "common_mistakes": [
+        "minifigure lying on top of the car, not in the seat"
+      ],
+      "refs": [],
+      "done_refs": [],
+      "parts": [],
+      "image": null,
+      "parts_image": null,
+      "page": null,
+      "where": "middle",
+      "small": true
+    },
+    {
+      "id": 5,
+      "say": "Attach the glass roof over the driver",
+      "piece": "glass roof",
+      "cls": "roof",
+      "onto": "chassis",
+      "find": "the glass roof: a transparent smoke-grey LEGO canopy, rounded at one end, with two black studs showing through it",
+      "place": "on top of the car, covering the cockpit over the minifigure, clipped onto the studs behind and in front of the seat",
+      "check": "The transparent roof covers the cockpit over the minifigure and the car looks complete.",
+      "detail": "Lower the glass roof over the driver and press it onto the studs so the cockpit is closed.",
+      "common_mistakes": [
+        "roof resting loose",
+        "roof on backward"
+      ],
+      "refs": [],
+      "done_refs": [],
+      "parts": [],
+      "image": null,
+      "parts_image": null,
+      "page": null,
+      "where": "middle",
+      "small": false
+    }
+  ]
+}

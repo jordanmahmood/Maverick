@@ -1,0 +1,22 @@
+{
+ "name": "g320q",
+ "file": "g320q.onnx",
+ "input": "images",
+ "output": "output0",
+ "width": 320,
+ "height": 256,
+ "content_height": 240,
+ "pad_value": 114,
+ "classes": [
+  "chassis",
+  "hood",
+  "rear",
+  "minifigure",
+  "roof",
+  "foreign"
+ ],
+ "conf": 0.35,
+ "iou": 0.5,
+ "threads": 1,
+ "version": 1795282204
+}

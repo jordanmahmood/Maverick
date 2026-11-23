@@ -1,0 +1,29 @@
+{
+  "title": "Lego mini racer",
+  "steps": [
+    {"id": 1, "say": "Place the blue base plate flat",
+     "detail": "Studs facing up, long side toward you.",
+     "check": "A blue rectangular Lego plate lies flat on the table with its studs facing up and nothing on it.",
+     "common_mistakes": ["plate upside down", "wrong color plate"]},
+    {"id": 2, "say": "Clip two axles under the base",
+     "detail": "One grey axle near each short end.",
+     "check": "The blue plate has two grey axle pieces attached underneath, one near each end.",
+     "common_mistakes": ["only one axle attached", "both axles at the same end"]},
+    {"id": 3, "say": "Push on all four wheels",
+     "detail": "Black wheels, one on each axle end.",
+     "check": "Four black wheels are attached, two on each side of the blue plate.",
+     "common_mistakes": ["fewer than four wheels", "wheel not pushed fully on"]},
+    {"id": 4, "say": "Add the red 2x4 at the back",
+     "detail": "Press it onto the 4 rear studs of the blue base.",
+     "check": "A red 2x4 brick sits on top of the rear half of the blue plate.",
+     "common_mistakes": ["blue 2x4 used instead of red", "brick placed at the front"]},
+    {"id": 5, "say": "Add the clear windscreen in front",
+     "detail": "Transparent sloped piece, slope facing forward.",
+     "check": "A transparent sloped piece sits on the front half of the blue plate, in front of the red brick.",
+     "common_mistakes": ["slope facing backward", "windscreen placed on the red brick"]},
+    {"id": 6, "say": "Seat the driver behind the windscreen",
+     "detail": "Minifigure between the windscreen and the red brick.",
+     "check": "A Lego minifigure sits between the transparent windscreen and the red brick.",
+     "common_mistakes": ["driver facing backward", "driver placed on top of the red brick"]}
+  ]
+}

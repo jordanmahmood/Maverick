@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A thin rounded square in the accent green with a white M. Drawn inside the adaptive icon's safe zone. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <path
+        android:pathData="M41,30 H67 A11,11 0 0 1 78,41 V67 A11,11 0 0 1 67,78 H41 A11,11 0 0 1 30,67 V41 A11,11 0 0 1 41,30 Z"
+        android:strokeColor="#39FF14" android:strokeWidth="2.5" android:fillColor="#00000000" />
+    <path
+        android:pathData="M43,65 V44 L54,58 L65,44 V65"
+        android:strokeColor="#FFFFFF" android:strokeWidth="4.5"
+        android:strokeLineCap="round" android:strokeLineJoin="round" android:fillColor="#00000000" />
+</vector>

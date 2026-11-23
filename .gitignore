@@ -1,0 +1,38 @@
+.env
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+.DS_Store
+build/
+.gradle/
+local.properties
+
+# LEGO booklets and page renders are downloaded on demand
+guides/kits/*/booklet-*.pdf
+guides/kits/*/pages/
+guides/kits/*/hud/
+guides/kits/_speech/
+guides/kits/_session.json
+guides/kits/demo/train/
+backend/*.pt
+web/dist/
+recordings/
+.demo-backup-*/
+
+# Runtime state of one machine / one wearer
+guides/kits/_prefs.json
+guides/kits/_calib.json
+
+# Recorded camera frames used to calibrate 8-bit exports: they show people at the venue
+backend/calib/
+
+# Detector work files. Kept in git: model.pt (the hub's), model-glasses*.pt (fine-tuned at
+# glasses sizes) and the 8-bit exports in demo/glasses/. Float exports are rebuilt by
+# backend/glasses_export.py.
+guides/kits/demo/model-candidate.pt
+guides/kits/demo/model-previous.pt
+guides/kits/demo/glasses/model.onnx
+guides/kits/demo/glasses/g416.onnx
+guides/kits/demo/glasses/n320.onnx
+guides/kits/demo/glasses/p320.onnx

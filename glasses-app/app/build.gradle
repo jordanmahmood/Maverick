@@ -1,0 +1,18 @@
+plugins { id 'com.android.application' }
+android {
+    namespace 'com.maverick.glasses'
+    compileSdk 34
+    defaultConfig {
+        applicationId 'com.maverick.glasses'
+        minSdk 28
+        targetSdk 28
+        versionCode 1
+        versionName '0.1'
+        ndk { abiFilters 'arm64-v8a' }   // the glasses and current phones; keeps the ONNX Runtime library to one copy
+    }
+    compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+}
+dependencies {
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    implementation 'com.microsoft.onnxruntime:onnxruntime-android:1.29.0'   // the part detector on the glasses
+}

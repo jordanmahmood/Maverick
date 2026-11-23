@@ -1,0 +1,154 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/instrument-sans";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: "Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-warn: var(--warn);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-subtle: var(--subtle);
+  --color-line: var(--line);
+
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  --animate-pulse-dot: pulse-dot 2s ease-in-out infinite;
+  --animate-ring: ring-draw 300ms cubic-bezier(0.2, 0, 0, 1) forwards;
+  --animate-tick: tick-draw 200ms cubic-bezier(0.2, 0, 0, 1) 300ms forwards;
+  --animate-rise: rise 320ms cubic-bezier(0.2, 0, 0, 1);
+  --animate-listen: listen 800ms ease-in-out infinite;
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+  @keyframes ring-draw {
+    to { stroke-dashoffset: 0; }
+  }
+  @keyframes tick-draw {
+    to { stroke-dashoffset: 0; }
+  }
+  @keyframes listen {
+    50% { opacity: 0.6; }
+  }
+  @keyframes rise {
+    0% { opacity: 0; transform: translateY(6px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+}
+
+/*
+ * One dark theme: near-black canvas, white type, one accent (neon green).
+ * Amber is reserved for warnings.
+ */
+:root {
+  color-scheme: dark;
+
+  --background: #050505;
+  --foreground: #f2f2f2;
+  --surface: #0b0b0b;
+  --surface-2: #111111;
+  --card: #0b0b0b;
+  --card-foreground: #f2f2f2;
+  --popover: #0d0d0d;
+  --popover-foreground: #f2f2f2;
+
+  --primary: #f2f2f2;
+  --primary-foreground: #050505;
+  --secondary: #161616;
+  --secondary-foreground: #f2f2f2;
+  --muted: #141414;
+  --muted-foreground: #9a9a9a;
+  --subtle: #6b6b6b;
+  --accent: #1a1a1a;
+  --accent-foreground: #f2f2f2;
+
+  --brand: #39ff14;
+  --brand-foreground: #050505;
+  --warn: #ffc266;
+  --destructive: #ff5c5c;
+
+  --border: rgb(255 255 255 / 0.09);
+  --line: rgb(255 255 255 / 0.06);
+  --input: rgb(255 255 255 / 0.12);
+  --ring: rgb(57 255 20 / 0.55);
+  --radius: 0.75rem;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    scrollbar-width: thin;
+    scrollbar-color: rgb(255 255 255 / 0.14) transparent;
+  }
+  html {
+    @apply font-sans;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  ::selection {
+    background: var(--brand);
+    color: var(--brand-foreground);
+  }
+  h1, h2, h3, h4 {
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+}
+
+@layer utilities {
+  .num {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

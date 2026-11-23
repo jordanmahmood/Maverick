@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maverick · live</title>
+<style>
+:root{--bg:#0d1110;--panel:#151b19;--line:#27322e;--ink:#e8f0ec;--muted:#8fa099;--accent:#5cc9b3;
+  --hud:#8cffc1;--hud-dim:#4a9c74;--ar:#5cff9a;--warn:#ffc266;color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+header{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;padding:10px 18px;border-bottom:1px solid var(--line)}
+h1{margin:0;font-size:17px;letter-spacing:-.01em}
+h2{margin:0 0 8px;font:600 11px/1.3 ui-monospace,Menlo,monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;align-items:center;gap:8px}
+input[type=text]{width:150px;font:inherit;color:var(--ink);background:#0a0d0c;border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+textarea{width:100%;font:inherit;color:var(--ink);background:#0a0d0c;border:1px solid var(--line);border-radius:8px;padding:8px 10px;resize:vertical;min-height:54px}
+button{font:500 13px/1 inherit;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:8px;padding:9px 12px;cursor:pointer}
+button:hover{border-color:var(--accent)} button.primary{background:#16312b;border-color:var(--accent)}
+button[aria-pressed=true]{background:#16312b;border-color:var(--accent)}
+button.small{padding:6px 9px;font-size:12px}
+button:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+kbd{font:400 11px ui-monospace,Menlo,monospace;color:var(--muted);margin-left:5px}
+.pill{display:inline-block;padding:3px 9px;border-radius:999px;border:1px solid var(--line);font:500 12px/1.4 ui-monospace,Menlo,monospace;color:var(--muted)}
+.pill.ok{color:var(--hud);border-color:#2c5a45}.pill.bad{color:var(--warn);border-color:#6b5226}
+.spacer{flex:1}
+main{display:grid;grid-template-columns:minmax(0,2.1fr) minmax(300px,1fr);gap:16px;padding:16px 18px;align-items:start}
+@media (max-width:1100px){main{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;min-width:0}
+.col{display:grid;gap:16px;min-width:0}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
+
+/* The wearer's view: live camera with exactly the HUD the lens draws. */
+.lens{position:relative;aspect-ratio:4/3;background:#000;border-radius:10px;color:var(--hud);overflow:hidden}
+.lens.warn{color:var(--warn)}
+#lensCam{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:fill;max-width:none}
+#lensAr{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.lens .empty{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);text-align:center;padding:20px}
+.strip{position:absolute;left:0;right:0;bottom:0;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:26px 2.4% 2.2%;background:linear-gradient(transparent,rgba(0,0,0,.78) 42%)}
+.strip>div{min-width:0}
+.strip canvas,.strip #lIcon{width:84px;height:72px;object-fit:contain}
+.strip .big{font-weight:680;font-size:clamp(17px,2.2vw,30px);line-height:1.15}
+.strip .sub{font-size:clamp(13px,1.35vw,18px);color:var(--hud-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:1.3em}
+.strip .sub.ok{color:var(--hud);font-weight:600}.strip .sub.warn{color:var(--warn);font-weight:600}
+.strip .top{font:500 14px/1 ui-monospace,Menlo,monospace;color:var(--hud-dim);align-self:end}
+.lens .bar{position:absolute;left:0;right:0;bottom:0;height:3px}.lens .bar i{display:block;height:100%;background:currentColor;width:0;transition:width .25s}
+#peek{position:absolute;right:2.4%;bottom:22%;max-width:44%;max-height:40%;background:rgba(0,0,0,.8);border-radius:8px;opacity:0;transition:opacity .2s}
+#peek.on{opacity:1}
+#flash{position:absolute;inset:0;display:grid;place-items:center;font-size:clamp(90px,14vw,190px);color:var(--hud);opacity:0;transition:opacity .25s;pointer-events:none}
+#flash.on{opacity:1}
+.info{position:absolute;left:8%;right:8%;bottom:14%;text-align:center;display:grid;gap:6px}
+.info .big{font-weight:650;font-size:clamp(20px,2.6vw,34px)}
+.info .top,.info .sub{font-size:15px;color:var(--hud-dim)}
+
+.raw{position:relative;aspect-ratio:4/3;background:#000;border-radius:8px;overflow:hidden}
+.raw img,.raw canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:fill}
+.coach .hint{font-size:18px;font-weight:600;color:var(--hud);min-height:1.4em}
+.coach .hint.warn{color:var(--warn)}
+.seen{color:var(--muted);font-size:13px;min-height:1.4em}
+.verdict{font:600 12px/1 ui-monospace,Menlo,monospace;padding:4px 8px;border-radius:6px;border:1px solid var(--line)}
+.verdict.done{color:#0d1110;background:var(--hud);border-color:var(--hud)}
+.verdict.mistake{color:#0d1110;background:var(--warn);border-color:var(--warn)}
+#dets{font:12px/1.6 ui-monospace,Menlo,monospace;color:var(--muted);min-height:1.6em}
+#dets b{color:var(--ink);font-weight:600}
+ol{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+ol li{display:grid;grid-template-columns:30px 1fr;gap:6px;padding:8px;border-radius:6px;cursor:pointer;color:var(--muted)}
+ol li:hover{background:#1b2421} ol li.done{color:#5d6d66} ol li.done .n::after{content:" ✓";color:var(--hud-dim)}
+ol li.now{background:#16312b;color:var(--ink);font-weight:600}
+ol li .n{font:500 12px/1.6 ui-monospace,Menlo,monospace}
+details>summary{cursor:pointer;color:var(--muted);font:600 11px/1.3 ui-monospace,Menlo,monospace;letter-spacing:.1em;text-transform:uppercase}
+.dstep{border:1px solid var(--line);border-radius:10px;padding:10px;display:grid;gap:8px;margin-top:8px}
+.dhead{display:grid;grid-template-columns:22px minmax(0,.7fr) minmax(0,1.3fr);gap:8px;align-items:center}
+.dhead b{font:600 13px ui-monospace,Menlo,monospace;color:var(--muted)}
+.dhead input{width:100%}
+.dphotos{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12px;color:var(--muted)}
+.thumb{position:relative;width:54px;height:42px;border-radius:5px;overflow:hidden;border:1px solid var(--line)}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb button{position:absolute;top:0;right:0;padding:1px 5px;border:0;border-radius:0 0 0 5px;background:rgba(0,0,0,.7);font-size:11px}
+.dstep label{display:block;font-size:11px;color:var(--muted);margin:6px 0 3px}
+#calib{position:fixed;inset:0;background:#000;z-index:20;display:grid;place-items:center;align-content:center;gap:16px;text-align:center}
+#pink{height:60vh;aspect-ratio:4/3;background:#ff2bd6}
+#calib p{margin:0;max-width:60ch;color:#cfd8d4}
+</style>
+</head>
+<body>
+<header>
+  <h1>Maverick</h1>
+  <span id="title" style="color:var(--muted)"></span>
+  <span id="parseMsg" style="color:var(--muted);font-size:13px"></span>
+  <span class="spacer"></span>
+  <label style="font-size:13px;color:var(--muted)"><input type="checkbox" id="speak"> play voice here</label>
+  <span class="pill" id="pGlasses">camera: –</span>
+  <span class="pill" id="pDetector">detector: –</span>
+  <span class="pill" id="pModel">AI: –</span>
+  <span class="pill" id="pConn">offline</span>
+</header>
+<main>
+  <div class="col">
+    <div class="card">
+      <h2><span>What the wearer sees · live</span>
+        <span><span id="fps" style="margin-right:10px"></span><button class="small" id="lensView">view</button></span></h2>
+      <div class="lens" id="lens">
+        <div class="empty" id="noFrame">Waiting for the camera. Plug in the phone or glasses and run ./device.sh</div>
+        <img id="lensCam" alt="" hidden>
+        <canvas id="lensAr" width="1280" height="960"></canvas>
+        <img id="peek" alt="">
+        <div id="flash">✓</div>
+        <div class="info" id="lInfo" hidden><div class="top" id="iTop"></div><div class="big" id="iBig"></div><div class="sub" id="iSub"></div></div>
+        <div class="strip" id="lStrip">
+          <div><canvas id="brick" width="256" height="224" hidden></canvas><img id="lIcon" alt="" hidden></div>
+          <div><div class="big" id="lBig"></div><div class="sub" id="lSub"></div></div>
+          <div class="top" id="lTop"></div>
+        </div>
+        <div class="bar"><i id="lBar"></i></div>
+      </div>
+      <div class="row">
+        <button data-cmd="back">Back<kbd>←</kbd></button>
+        <button data-cmd="next">Next<kbd>→</kbd></button>
+        <button data-cmd="restart">Restart</button>
+        <button id="forceDone">Force done<kbd>D</kbd></button>
+        <button id="auto" aria-pressed="true">AI checks on</button>
+        <button id="arOn" aria-pressed="true">AR boxes on</button>
+        <button id="macCam" aria-pressed="false">Use this Mac's camera</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="card">
+      <h2><span>Steps</span><span id="count"></span></h2>
+      <ol id="steps"></ol>
+    </div>
+    <div class="card coach">
+      <h2><span>What the AI makes of it</span><span id="phase"></span></h2>
+      <div class="hint" id="hint"></div>
+      <div class="seen"><span class="verdict" id="verdict">–</span> <span id="seen"></span></div>
+      <div id="dets"></div>
+      <div class="seen" id="heard"></div>
+      <form class="row" id="askForm"><input type="text" id="ask" style="flex:1;width:auto" placeholder="Ask about this step" aria-label="Ask a question"><button type="submit">Ask</button></form>
+    </div>
+    <div class="card">
+      <h2><span>Whole camera · every detection</span><span id="detMs"></span></h2>
+      <div class="raw"><img id="cam" alt="" hidden><canvas id="overlay" width="640" height="480"></canvas></div>
+    </div>
+    <div class="card">
+      <details>
+        <summary>Lens calibration (glasses only)</summary>
+        <div class="row">
+          <button id="calibStart">Calibrate lens</button>
+          <button class="small" data-nudge="l" aria-label="Move lens area left">←</button>
+          <button class="small" data-nudge="r" aria-label="Move lens area right">→</button>
+          <button class="small" data-nudge="u" aria-label="Move lens area up">↑</button>
+          <button class="small" data-nudge="d" aria-label="Move lens area down">↓</button>
+          <button class="small" data-nudge="-" aria-label="Shrink lens area">−</button>
+          <button class="small" data-nudge="+" aria-label="Grow lens area">+</button>
+          <span id="calibText" style="font:12px ui-monospace,Menlo,monospace;color:var(--muted)"></span>
+        </div>
+      </details>
+    </div>
+    <div class="card">
+      <details>
+        <summary>Edit the demo steps</summary>
+        <div id="demoSteps"></div>
+        <div class="row">
+          <button class="small" id="demoAdd">Add step</button>
+          <button class="small" id="demoDrop">Remove last</button>
+          <button class="small" id="demoSave">Save</button>
+          <button class="small primary" id="demoRun">Save and run</button>
+          <span id="demoMsg" style="font-size:12px;color:var(--muted)"></span>
+        </div>
+      </details>
+    </div>
+  </div>
+</main>
+<div id="calib" hidden>
+  <div id="pink"></div>
+  <p>Wearer: look at this screen and move until the green frame on your lens fits the pink rectangle exactly, edge to edge. Then tap the touchpad, or press Capture here.</p>
+  <div class="row" style="justify-content:center"><button class="primary" id="calibCapture">Capture</button><button id="calibCancel">Cancel</button></div>
+  <p id="calibMsg" style="color:var(--warn)"></p>
+</div>
+<video id="video" playsinline muted hidden></video>
+<canvas id="grab" width="640" height="480" hidden></canvas>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+let ws, guide = {steps: []}, state = {index: 0}, lastScreen = {}, roi = null, roiAt = 0;
+let ar = {targets: [], at: 0}, dets = {found: [], at: 0}, frames = 0;
+let lensFull = true;  // true: the display covers the whole camera (phone). false: lens area (glasses)
+try { if (localStorage.getItem("lensFull") === "0") lensFull = false; } catch (e) {}
+const calib = () => (state.calib && state.calib.length === 4) ? state.calib : [0.33, 0.30, 0.67, 0.64];
+const view = () => lensFull ? [0, 0, 1, 1] : calib();
+
+function connect() {
+  ws = new WebSocket(`${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/ws?role=monitor`);
+  ws.onopen = () => { $("pConn").textContent = "connected"; $("pConn").className = "pill ok"; };
+  ws.onclose = () => { $("pConn").textContent = "offline"; $("pConn").className = "pill bad"; setTimeout(connect, 1000); };
+  ws.onmessage = e => handle(JSON.parse(e.data));
+}
+const send = m => ws && ws.readyState === 1 && ws.send(JSON.stringify(m));
+
+function handle(m) {
+  if (m.type === "frame") {
+    const url = "data:image/jpeg;base64," + m.jpeg;
+    $("cam").src = url; $("cam").hidden = false; $("lensCam").src = url; $("lensCam").hidden = false; $("noFrame").hidden = true; frames++;
+  } else if (m.type === "ar") { ar = {targets: m.targets || [], at: performance.now(), ms: m.ms};
+  } else if (m.type === "dets") {
+    dets = {found: m.found || [], at: performance.now()}; $("detMs").textContent = m.ms ? m.ms + " ms" : "";
+    $("dets").innerHTML = dets.found.length ? "Detector: " + dets.found.map(d => `<b>${d.cls}</b> ${Math.round(d.conf * 100)}%`).join(" · ") : (state.detector ? "Detector: nothing in view" : "");
+  } else if (m.type === "calib") {
+    $("calib").hidden = !m.on; $("calibMsg").textContent = m.error || "";
+    if (m.ok) $("parseMsg").textContent = "Lens calibrated";
+  } else if (m.type === "screen") { lastScreen = m; renderLens(m);
+  } else if (m.type === "hint") { setHint(m.text, m.tone); if (m.peek_ms) peek(m.peek_ms); if (m.say_url) say(m.say_url);
+  } else if (m.type === "heard") { $("heard").textContent = m.text ? `Heard: “${m.text}” → ${m.kind}${m.value ? " " + m.value : ""}` : "";
+  } else if (m.type === "status") {
+    $("pModel").textContent = m.mock ? "AI: mock" : `AI: ${state.model || "on"}${m.ms ? " · " + m.ms + " ms" : ""}`;
+    $("pModel").className = "pill " + (m.mock ? "bad" : "ok");
+    if (m.verdict) {
+      $("verdict").textContent = m.verdict.replace("_", " "); $("verdict").className = "verdict " + m.verdict;
+      $("seen").textContent = m.seen ? `AI sees: ${m.seen}` : "";
+      roi = (m.zoomed && m.roi) ? m.roi : null; roiAt = performance.now();
+      $("phase").textContent = (m.phase || "").replace("_", " ");
+    }
+  } else if (m.type === "guide") { guide = m; renderGuide(); renderStep();
+  } else if (m.type === "state") {
+    state = m; renderStep(); applyLensView();
+    $("pGlasses").textContent = `camera: ${m.glasses ? "connected" + (m.camera ? " · " + m.camera : "") : "not connected"}`;
+    $("pGlasses").className = "pill " + (m.glasses ? "ok" : "bad");
+    $("pDetector").textContent = m.detector ? `detector: trained · ${m.detect_ms || "–"} ms` : "detector: cloud only";
+    $("pDetector").className = "pill " + (m.detector ? "ok" : "bad");
+    $("auto").setAttribute("aria-pressed", m.auto); $("auto").textContent = m.auto ? "AI checks on" : "AI checks off";
+    $("arOn").setAttribute("aria-pressed", m.ar); $("arOn").textContent = m.ar ? "AR boxes on" : "AR boxes off";
+    $("calibText").textContent = calib().map(v => v.toFixed(3)).join(" ");
+  } else if (m.type === "parse") {
+    $("parseMsg").textContent = m.error ? "⚠ " + m.error : (m.busy ? `${m.message}${m.total ? ` ${m.done}/${m.total}` : "…"}` : "");
+  }
+}
+
+let peekTimer = null, audio = null;
+function setHint(text, tone) {
+  $("hint").textContent = text || ""; $("hint").className = "hint" + (tone === "warn" ? " warn" : "");
+  $("lSub").textContent = text || lastScreen.sub || ""; $("lSub").className = "sub" + (text ? " " + (tone || "") : "");
+}
+function peek(ms) {
+  if (!lastScreen.image) return;
+  $("peek").src = lastScreen.image; $("peek").classList.add("on");
+  clearTimeout(peekTimer); peekTimer = setTimeout(() => $("peek").classList.remove("on"), ms);
+}
+function say(url) { if (!$("speak").checked) return; try { if (audio) audio.pause(); audio = new Audio(url); audio.play().catch(() => {}); } catch (e) {} }
+
+function renderLens(m) {
+  const info = m.mode === "info";
+  $("lens").classList.toggle("warn", !!m.warn);
+  $("lInfo").hidden = !info; $("lStrip").hidden = info;
+  $("iTop").textContent = m.top || ""; $("iBig").textContent = m.big || ""; $("iSub").textContent = m.sub || "";
+  $("lTop").textContent = m.top || ""; $("lBig").textContent = m.big || "";
+  $("lBar").style.width = Math.round((m.progress || 0) * 100) + "%";
+  const bricks = m.bricks || [];
+  $("brick").hidden = !bricks.length; showBrick(bricks[0]);
+  $("lIcon").hidden = !!bricks.length || !m.icon; if (m.icon) $("lIcon").src = m.icon;
+  setHint("", "");
+  $("peek").classList.remove("on"); if (m.peek_ms) peek(m.peek_ms);
+  if (m.flash) { $("flash").classList.add("on"); setTimeout(() => $("flash").classList.remove("on"), 650); }
+  if (m.say_url) say(m.say_url);
+}
+
+function renderGuide() {
+  $("title").textContent = guide.title || ""; $("count").textContent = `${guide.steps.length} steps`;
+  $("steps").innerHTML = "";
+  guide.steps.forEach((s, i) => {
+    const li = document.createElement("li");
+    li.innerHTML = `<span class="n">${i + 1}</span><span></span>`; li.lastChild.textContent = s.say;
+    li.onclick = () => send({type: "goto", index: i});
+    $("steps").appendChild(li);
+  });
+}
+function renderStep() {
+  [...$("steps").children].forEach((li, i) => {
+    li.className = i === state.index && !state.finished ? "now" : (i < state.index || state.finished ? "done" : "");
+  });
+}
+
+// ---- drawing: AR targets on the wearer's view, every detection on the whole-camera view ----
+const ctx = $("overlay").getContext("2d"), lctx = $("lensAr").getContext("2d");
+function applyLensView() {
+  const c = view(), cw = c[2] - c[0], ch = c[3] - c[1], im = $("lensCam").style;
+  im.width = 100 / cw + "%"; im.height = 100 / ch + "%"; im.left = -c[0] / cw * 100 + "%"; im.top = -c[1] / ch * 100 + "%";
+  $("lensView").textContent = lensFull ? "phone: whole camera" : "glasses: lens area";
+}
+function drawTarget(g, W, H, t, map, alpha, time) {
+  const [x0, y0, x1, y1] = t.box, a = map(x0, y0), b = map(x1, y1), u = W / 640;
+  const x = a[0] * W, y = a[1] * H, w = (b[0] - a[0]) * W, h = (b[1] - a[1]) * H, cx = x + w / 2, cy = y + h / 2;
+  g.globalAlpha = alpha; g.strokeStyle = "#5cff9a"; g.fillStyle = "#5cff9a"; g.font = `700 ${15 * u}px ui-sans-serif,system-ui`;
+  const label = (t.label || "") + (t.sub ? " · " + t.sub : "");
+  if (cx < 0 || cx > W || cy < 0 || cy > H) {  // out of view: point toward it
+    const px = Math.min(W - 20 * u, Math.max(20 * u, cx)), py = Math.min(H * 0.8, Math.max(20 * u, cy)), ang = Math.atan2(cy - H / 2, cx - W / 2);
+    g.save(); g.translate(px, py); g.rotate(ang); g.beginPath(); g.moveTo(14 * u, 0); g.lineTo(-8 * u, -11 * u); g.lineTo(-8 * u, 11 * u); g.closePath(); g.fill(); g.restore();
+    g.textAlign = cx > W / 2 ? "right" : "left"; g.fillText(t.label || "", cx > W / 2 ? px - 20 * u : px + 20 * u, py + 6 * u); g.textAlign = "left";
+    g.globalAlpha = 1; return;
+  }
+  g.lineWidth = 1.5 * u; if (t.style === "place") g.setLineDash([9 * u, 6 * u]);
+  g.strokeRect(x, y, w, h); g.setLineDash([]);
+  if (t.style !== "place") {
+    const k = Math.min(22 * u, w / 3, h / 3); g.lineWidth = 4 * u; g.shadowColor = "#5cff9a"; g.shadowBlur = (10 + 5 * Math.sin(time / 200)) * u;
+    g.beginPath();
+    for (const [px, py, sx, sy] of [[x, y, 1, 1], [x + w, y, -1, 1], [x, y + h, 1, -1], [x + w, y + h, -1, -1]]) {
+      g.moveTo(px + sx * k, py); g.lineTo(px, py); g.lineTo(px, py + sy * k);
+    }
+    g.stroke(); g.shadowBlur = 0;
+  }
+  const tw = g.measureText(label).width + 14 * u, th = 22 * u, ly = y - th - 4 * u < 0 ? y + h + 4 * u : y - th - 4 * u;
+  g.fillRect(x, ly, tw, th); g.fillStyle = "#06120c"; g.fillText(label, x + 7 * u, ly + th * 0.74);
+  g.globalAlpha = 1;
+}
+const COLOURS = {chassis: "#50c8ff", hood: "#ffffff", rear: "#ff6060", minifigure: "#ffdc3c", roof: "#a0ffb0"};
+function drawOverlay(t) {
+  ctx.clearRect(0, 0, 640, 480); lctx.clearRect(0, 0, 1280, 960);
+  const c = calib(), now = performance.now();
+  if (!lensFull) {  // where the lens display sits inside the camera's view
+    ctx.lineWidth = 1.5; ctx.strokeStyle = "rgba(255,255,255,.7)";
+    ctx.strokeRect(c[0] * 640, c[1] * 480, (c[2] - c[0]) * 640, (c[3] - c[1]) * 480);
+  }
+  if (roi && now - roiAt < 5000) {  // where the cloud model is zoomed in
+    ctx.setLineDash([8, 6]); ctx.lineWidth = 1; ctx.strokeStyle = "rgba(255,255,255,.35)";
+    ctx.strokeRect(roi[0] * 640, roi[1] * 480, (roi[2] - roi[0]) * 640, (roi[3] - roi[1]) * 480); ctx.setLineDash([]);
+  }
+  if (now - dets.at < 800) for (const d of dets.found) {
+    const [x0, y0, x1, y1] = d.box; ctx.lineWidth = 2; ctx.strokeStyle = ctx.fillStyle = COLOURS[d.cls] || "#f0f";
+    ctx.strokeRect(x0 * 640, y0 * 480, (x1 - x0) * 640, (y1 - y0) * 480);
+    ctx.font = "600 12px ui-monospace,Menlo,monospace"; ctx.fillText(`${d.cls} ${Math.round(d.conf * 100)}`, x0 * 640 + 3, Math.max(12, y0 * 480 - 4));
+  }
+  const age = now - ar.at, alpha = age < 1500 ? 1 : Math.max(0, 1 - (age - 1500) / 600), v = view();
+  if (alpha > 0) for (const target of ar.targets) {
+    if (!target.box || target.box.length !== 4) continue;
+    drawTarget(lctx, 1280, 960, target, (x, y) => [(x - v[0]) / (v[2] - v[0]), (y - v[1]) / (v[3] - v[1])], alpha, t);
+  }
+  requestAnimationFrame(drawOverlay);
+}
+requestAnimationFrame(drawOverlay);
+setInterval(() => { $("fps").textContent = frames ? `${frames} fps` : ""; frames = 0; }, 1000);
+
+// ---- rotating 3D brick (kits with brick specs) ----
+let three = null;
+function showBrick(spec) {
+  if (!window.THREE || !spec) return;
+  if (!three) {
+    const renderer = new THREE.WebGLRenderer({canvas: $("brick"), antialias: true, alpha: true});
+    const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(35, 256 / 224, 0.1, 100);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.75));
+    const sun = new THREE.DirectionalLight(0xffffff, 0.9); sun.position.set(3, 6, 4); scene.add(sun);
+    three = {renderer, scene, camera, group: null};
+    (function spin() { if (three.group) three.group.rotation.y += 0.02; renderer.render(scene, camera); requestAnimationFrame(spin); })();
+  }
+  if (three.group) three.scene.remove(three.group);
+  const g = new THREE.Group(), H = spec.h * 0.4, mat = new THREE.MeshStandardMaterial({color: spec.color, roughness: 0.45});
+  const body = spec.shape === "round" ? new THREE.Mesh(new THREE.CylinderGeometry(spec.w / 2, spec.w / 2, H, 32), mat)
+                                      : new THREE.Mesh(new THREE.BoxGeometry(spec.l, H, spec.w), mat);
+  g.add(body); g.add(new THREE.LineSegments(new THREE.EdgesGeometry(body.geometry, 20), new THREE.LineBasicMaterial({color: 0xcfffe4})));
+  g.rotation.x = 0.45; three.group = g; three.scene.add(g);
+  const size = Math.max(spec.l, spec.w, 2);
+  three.camera.position.set(0, size * 0.9, size * 2.3 + 2); three.camera.lookAt(0, 0, 0);
+}
+
+// ---- controls ----
+document.querySelectorAll("[data-cmd]").forEach(b => b.onclick = () => send({type: "command", name: b.dataset.cmd}));
+$("auto").onclick = () => send({type: "auto", on: $("auto").getAttribute("aria-pressed") !== "true"});
+$("arOn").onclick = () => send({type: "ar", on: $("arOn").getAttribute("aria-pressed") !== "true"});
+$("forceDone").onclick = () => send({type: "debug", verdict: "done"});
+$("askForm").onsubmit = e => { e.preventDefault(); const t = $("ask").value.trim(); if (t) send({type: "ask", text: t}); $("ask").value = ""; };
+$("lensView").onclick = () => { lensFull = !lensFull; try { localStorage.setItem("lensFull", lensFull ? "1" : "0"); } catch (e) {} applyLensView(); };
+$("calibStart").onclick = () => send({type: "calib", action: "start"});
+$("calibCapture").onclick = () => send({type: "calib", action: "capture"});
+$("calibCancel").onclick = () => send({type: "calib", action: "stop"});
+document.querySelectorAll("[data-nudge]").forEach(b => b.onclick = () => {
+  let [x0, y0, x1, y1] = calib(); const d = 0.005, k = b.dataset.nudge;
+  if (k === "l") { x0 -= d; x1 -= d; } if (k === "r") { x0 += d; x1 += d; }
+  if (k === "u") { y0 -= d; y1 -= d; } if (k === "d") { y0 += d; y1 += d; }
+  if (k === "+") { x0 -= d; x1 += d; y0 -= d * 0.75; y1 += d * 0.75; }
+  if (k === "-") { x0 += d; x1 -= d; y0 += d * 0.75; y1 -= d * 0.75; }
+  send({type: "calib", action: "set", rect: [x0, y0, x1, y1]});
+});
+async function runKit(kit) {
+  const r = await fetch("/api/kit", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({kit})});
+  if (!r.ok) $("parseMsg").textContent = "⚠ " + ((await r.json()).error || r.statusText);
+}
+
+// ---- demo steps editor ----
+let demo = {title: "Demo build", steps: []};
+const api = async (path, method = "GET", body) => {
+  const r = await fetch(path, {method, headers: {"Content-Type": "application/json"}, body: body ? JSON.stringify(body) : undefined});
+  const data = await r.json();
+  if (!r.ok) throw new Error(data.error || r.statusText);
+  return data;
+};
+const demoNote = text => { $("demoMsg").textContent = text || ""; };
+function renderDemo() {
+  const host = $("demoSteps"); host.innerHTML = "";
+  demo.steps.forEach((step, i) => {
+    const el = document.createElement("div"); el.className = "dstep";
+    el.innerHTML = `<div class="dhead"><b>${i + 1}</b><input type="text" data-f="piece" placeholder="Piece" aria-label="Piece name"><input type="text" data-f="say" placeholder="Instruction, 8 words" aria-label="Instruction"></div>
+      <div class="dphotos"><span>Finished looks like</span><span data-k="done_refs" style="display:contents"></span><button class="small" data-cap="done_refs">Capture from camera</button></div>
+      <label>How to recognise the part</label><textarea data-f="find"></textarea>
+      <label>Where it goes on the build</label><textarea data-f="place"></textarea>
+      <label>What the camera sees when done</label><textarea data-f="check"></textarea>`;
+    el.querySelectorAll("[data-f]").forEach(input => {
+      input.value = step[input.dataset.f] || "";
+      input.oninput = () => { step[input.dataset.f] = input.value; };
+    });
+    const slot = el.querySelector("[data-k=done_refs]");
+    (step.done_refs || []).forEach((path, n) => {
+      const t = document.createElement("span"); t.className = "thumb";
+      t.innerHTML = `<img alt=""><button aria-label="Remove photo">×</button>`; t.firstChild.src = "/guides/" + path;
+      t.lastChild.onclick = async () => { await saveDemo(); demo = await api("/api/demo/forget", "POST", {step: i, kind: "done_refs", index: n}); renderDemo(); };
+      slot.appendChild(t);
+    });
+    el.querySelector("[data-cap]").onclick = async () => {
+      try { demoNote("Capturing…"); await saveDemo(); demo = await api("/api/demo/capture", "POST", {step: i, kind: "done_refs"}); renderDemo(); demoNote("Photo saved"); }
+      catch (err) { demoNote("⚠ " + err.message); }
+    };
+    host.appendChild(el);
+  });
+}
+async function saveDemo() { demo = await api("/api/demo", "PUT", demo); }
+$("demoAdd").onclick = () => { demo.steps.push({id: demo.steps.length + 1, say: ""}); renderDemo(); };
+$("demoDrop").onclick = () => { demo.steps.pop(); renderDemo(); };
+$("demoSave").onclick = async () => { try { await saveDemo(); renderDemo(); demoNote("Saved"); } catch (err) { demoNote("⚠ " + err.message); } };
+$("demoRun").onclick = async () => { try { await saveDemo(); renderDemo(); await runKit("demo"); demoNote("Running"); } catch (err) { demoNote("⚠ " + err.message); } };
+api("/api/demo").then(d => { demo = d; renderDemo(); }).catch(() => {});
+
+addEventListener("keydown", e => {
+  if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+  if (e.key === "ArrowRight") send({type: "command", name: "next"});
+  if (e.key === "ArrowLeft") send({type: "command", name: "back"});
+  if (e.key.toLowerCase() === "d") send({type: "debug", verdict: "done"});
+  if (e.key.toLowerCase() === "m") send({type: "debug", verdict: "mistake"});
+});
+let camTimer = null;
+$("macCam").onclick = async () => {
+  if (camTimer) { clearInterval(camTimer); camTimer = null; $("video").srcObject.getTracks().forEach(t => t.stop()); $("macCam").setAttribute("aria-pressed", "false"); return; }
+  try {
+    $("video").srcObject = await navigator.mediaDevices.getUserMedia({video: {width: {ideal: 1280}, height: {ideal: 960}}});
+    await $("video").play(); $("macCam").setAttribute("aria-pressed", "true");
+    let n = 0;
+    camTimer = setInterval(() => {
+      const v = $("video"), g = $("grab"); g.width = v.videoWidth || 1280; g.height = v.videoHeight || 960;
+      g.getContext("2d").drawImage(v, 0, 0, g.width, g.height);
+      send({type: "frame", seq: ++n, jpeg: g.toDataURL("image/jpeg", 0.7).split(",")[1]});
+    }, 150);
+  } catch (err) { $("parseMsg").textContent = "⚠ camera: " + err.message; }
+};
+applyLensView();
+connect();
+</script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="18 18 72 72" width="216" height="216" role="img" aria-label="Maverick app icon">
+  <!-- Same paths as phone-app/app/src/main/res/drawable/ic_launcher_foreground.xml, on the icon's #050505 background. -->
+  <rect x="18" y="18" width="72" height="72" rx="16" fill="#050505"/>
+  <path d="M41,30 H67 A11,11 0 0 1 78,41 V67 A11,11 0 0 1 67,78 H41 A11,11 0 0 1 30,67 V41 A11,11 0 0 1 41,30 Z" fill="none" stroke="#39FF14" stroke-width="2.5"/>
+  <path d="M43,65 V44 L54,58 L65,44 V65" fill="none" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

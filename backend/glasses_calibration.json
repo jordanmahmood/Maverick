@@ -1,0 +1,11 @@
+{
+ "placement": "one thread, normal priority, any core (the scheduler uses the fast core); CPU provider. Measured on the glasses 12:25, 6-20 runs per model, so +/- 30%",
+ "points": [
+  {"model": "n320", "device_ms": 400, "note": "YOLO11n 320x256 float (383 and 433 in two placements)"},
+  {"model": "p320", "device_ms": 172, "note": "half-width 320x256 float"},
+  {"model": "n320q", "device_ms": 244, "note": "YOLO11n 320x256 8-bit"},
+  {"model": "n416q", "device_ms": 386, "note": "YOLO11n 416x320 8-bit"},
+  {"model": "p320q", "device_ms": 116, "note": "half-width 320x256 8-bit"},
+  {"model": "p416q", "device_ms": 204, "note": "half-width 416x320 8-bit"}
+ ]
+}

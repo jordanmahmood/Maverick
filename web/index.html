@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Maverick · fake glasses</title>
+<style>
+/* Fake glasses: a 640x480 black "lens" plus a control panel.
+   Add ?hud=1 to the URL to show only the lens (for a phone or for mirroring). */
+:root{
+  --bg:#101413; --panel:#171d1b; --line:#2a3531; --ink:#e6eeea; --muted:#93a39d;
+  --accent:#5cc9b3; --hud:#8cffc1; --hud-dim:#4a9c74; --hud-warn:#ffc266; --hud-warn-dim:#c99a4e;
+  --ease-out:cubic-bezier(0.23,1,0.32,1);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+.app{display:grid;grid-template-columns:minmax(0,640px) minmax(0,320px);gap:24px;justify-content:center;align-items:start;
+  padding:24px max(16px,env(safe-area-inset-right)) 24px max(16px,env(safe-area-inset-left))}
+@media (max-width:1020px){.app{grid-template-columns:minmax(0,640px)}}
+
+.lens{position:relative;aspect-ratio:4/3;width:100%;background:#000;border:1px solid var(--line);border-radius:14px;overflow:hidden;color:var(--hud)}
+.hud{position:absolute;inset:0;padding:5.5% 6%;display:grid;grid-template-rows:auto 1fr auto;transition:opacity 160ms var(--ease-out)}
+.hud.swap{opacity:0}
+.top{display:flex;justify-content:space-between;font:500 clamp(11px,2.1vw,15px)/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.06em;color:var(--hud-dim)}
+.bar{height:3px;background:#173326;border-radius:2px;margin-top:10px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--hud);transform-origin:left;transform:scaleX(0);transition:transform 260ms var(--ease-out)}
+.main{align-self:center;display:grid;gap:10px}
+.big{font-weight:600;font-size:clamp(22px,5.6vw,40px);line-height:1.15;letter-spacing:-0.01em;text-wrap:balance}
+.sub{font-size:clamp(13px,2.8vw,19px);color:var(--hud-dim)}
+.bottom{display:flex;justify-content:space-between;gap:12px;font:400 clamp(10px,1.9vw,14px)/1.3 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--hud-dim)}
+.warn .big{color:var(--hud-warn)} .warn .sub,.warn .bottom,.warn .top{color:var(--hud-warn-dim)}
+.warn .bar i{background:var(--hud-warn)}
+.dot{display:inline-block;width:.6em;height:.6em;border-radius:50%;background:currentColor;margin-right:.45em;opacity:0}
+.checking .dot{opacity:1}
+@media (prefers-reduced-motion:no-preference){.checking .dot{animation:pulse 1.1s ease-in-out infinite}}
+@keyframes pulse{50%{opacity:.25}}
+.caption{display:flex;justify-content:space-between;margin-top:8px;font:500 12px/1 ui-monospace,Menlo,monospace;color:var(--muted)}
+
+.panel{display:grid;gap:18px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:10px}
+h2{margin:0;font:600 12px/1 ui-monospace,Menlo,monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.row{display:flex;flex-wrap:wrap;gap:8px}
+button{font:500 14px/1 inherit;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:9px;padding:10px 12px;cursor:pointer;
+  transition:transform 140ms var(--ease-out),border-color 140ms ease,background-color 140ms ease}
+button:active{transform:scale(.97)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (hover:hover) and (pointer:fine){button:hover{border-color:var(--accent)}}
+button[aria-pressed="true"]{border-color:var(--accent);background:#16312b}
+button kbd{font:400 11px ui-monospace,Menlo,monospace;color:var(--muted);margin-left:6px}
+input[type=text]{flex:1;min-width:0;font:inherit;color:var(--ink);background:#0d1110;border:1px solid var(--line);border-radius:9px;padding:9px 10px}
+video{width:100%;aspect-ratio:4/3;object-fit:cover;background:#000;border-radius:8px;border:1px solid var(--line)}
+dl{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:0;font-size:13px}
+dt{color:var(--muted)} dd{margin:0;font-variant-numeric:tabular-nums}
+.pill{display:inline-block;padding:2px 8px;border-radius:999px;border:1px solid var(--line);font:500 12px/1.4 ui-monospace,Menlo,monospace}
+.pill.ok{color:var(--hud);border-color:#2c5a45} .pill.bad{color:var(--hud-warn);border-color:#6b5226}
+.note{font-size:12.5px;color:var(--muted);margin:0}
+
+body.hud-only .panel,body.hud-only .caption{display:none}
+body.hud-only .app{grid-template-columns:1fr;padding:0;height:100%}
+body.hud-only .lens{border:0;border-radius:0;height:100%;aspect-ratio:auto}
+</style>
+</head>
+<body>
+<div class="app">
+  <div>
+    <div class="lens" id="lens" aria-live="polite">
+      <div class="hud" id="hud">
+        <div><div class="top"><span id="top">CONNECTING</span><span id="title">MAVERICK</span></div><div class="bar"><i id="bar"></i></div></div>
+        <div class="main"><div class="big" id="big">Starting…</div><div class="sub" id="sub"></div></div>
+        <div class="bottom"><span id="bottom"></span><span><span class="dot"></span><span id="look"></span></span></div>
+      </div>
+    </div>
+    <div class="caption"><span>What the wearer sees · 640 × 480</span><span id="conn">offline</span></div>
+  </div>
+
+  <div class="panel">
+    <div class="card">
+      <h2>Wearer commands</h2>
+      <div class="row">
+        <button id="c-next" data-cmd="next">Next<kbd>→</kbd></button>
+        <button id="c-back" data-cmd="back">Back<kbd>←</kbd></button>
+        <button id="c-repeat" data-cmd="repeat">Repeat<kbd>R</kbd></button>
+        <button id="c-more" data-cmd="more">Tell me more<kbd>T</kbd></button>
+        <button id="c-restart" data-cmd="restart">Restart</button>
+      </div>
+      <form class="row" id="askForm">
+        <input type="text" id="ask" placeholder="Which one is the axle?" aria-label="Ask a question">
+        <button type="submit" id="askBtn">Ask</button>
+      </form>
+      <div class="row"><button id="voice" aria-pressed="false">Voice commands off</button></div>
+    </div>
+
+    <div class="card">
+      <h2>Camera</h2>
+      <video id="video" playsinline muted></video>
+      <div class="row"><button id="cam" aria-pressed="false">Turn camera on</button></div>
+      <p class="note" id="camNote">A frame goes to the backend every 2 seconds while the camera is on.</p>
+    </div>
+
+    <div class="card">
+      <h2>Backend</h2>
+      <dl>
+        <dt>Checker</dt><dd id="mode">–</dd>
+        <dt>Last verdict</dt><dd id="verdict">–</dd>
+        <dt>Last check</dt><dd id="ms">–</dd>
+      </dl>
+      <div class="row">
+        <button id="d-done" data-debug="done">Force “done”<kbd>D</kbd></button>
+        <button id="d-mistake" data-debug="mistake">Force “mistake”<kbd>M</kbd></button>
+      </div>
+      <p class="note">The force buttons skip the camera. Use them to rehearse, or as a safety net on stage.</p>
+    </div>
+  </div>
+</div>
+<canvas id="canvas" hidden></canvas>
+
+<script>
+const $ = id => document.getElementById(id);
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (new URLSearchParams(location.search).has('hud')) document.body.classList.add('hud-only');
+
+// ---------- connection ----------
+let ws, retry = 0;
+function connect() {
+  ws = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/ws');
+  ws.onopen = () => { retry = 0; $('conn').textContent = 'connected'; };
+  ws.onmessage = e => { const m = JSON.parse(e.data); m.type === 'screen' ? render(m) : status(m); };
+  ws.onclose = () => {
+    $('conn').textContent = 'offline · retrying';
+    setTimeout(connect, Math.min(4000, 500 * 2 ** retry++));
+  };
+}
+const send = obj => ws && ws.readyState === 1 && ws.send(JSON.stringify(obj));
+
+// ---------- the display ----------
+function paint(m) {
+  $('lens').classList.toggle('warn', !!m.warn);
+  $('top').textContent = m.top; $('big').textContent = m.big;
+  $('sub').textContent = m.sub || ''; $('bottom').textContent = m.bottom || '';
+  $('bar').style.transform = `scaleX(${m.progress || 0})`;
+}
+function render(m) {
+  if (reduce) return paint(m);
+  $('hud').classList.add('swap');
+  setTimeout(() => { paint(m); requestAnimationFrame(() => $('hud').classList.remove('swap')); }, 110);
+}
+function status(m) {
+  $('lens').classList.toggle('checking', !!m.checking);
+  $('look').textContent = m.checking ? 'looking' : '';
+  $('mode').innerHTML = m.mock ? '<span class="pill bad">mock · no API key</span>' : '<span class="pill ok">Claude live</span>';
+  if (m.verdict) $('verdict').textContent = m.verdict.replace('_', ' ');
+  if (m.ms != null) $('ms').textContent = m.ms.toLocaleString() + ' ms';
+}
+
+// ---------- commands (no animation on keys: these fire constantly) ----------
+document.querySelectorAll('[data-cmd]').forEach(b => b.onclick = () => send({type: 'command', name: b.dataset.cmd}));
+document.querySelectorAll('[data-debug]').forEach(b => b.onclick = () => send({type: 'debug', verdict: b.dataset.debug}));
+const KEYS = {ArrowRight: ['command', 'next'], n: ['command', 'next'], ArrowLeft: ['command', 'back'],
+              r: ['command', 'repeat'], t: ['command', 'more'], d: ['debug', 'done'], m: ['debug', 'mistake']};
+addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.metaKey || e.ctrlKey) return;
+  const k = KEYS[e.key]; if (!k) return;
+  e.preventDefault();
+  send(k[0] === 'command' ? {type: 'command', name: k[1]} : {type: 'debug', verdict: k[1]});
+});
+$('askForm').onsubmit = e => {
+  e.preventDefault();
+  const text = $('ask').value.trim();
+  if (!text) { $('ask').focus(); return; }
+  send({type: 'ask', text}); $('ask').value = '';
+};
+
+// ---------- camera: one JPEG every 2 s ----------
+let stream = null, timer = null;
+$('cam').onclick = async () => {
+  if (stream) {
+    stream.getTracks().forEach(t => t.stop()); stream = null; clearInterval(timer);
+    $('video').srcObject = null; $('cam').textContent = 'Turn camera on'; $('cam').setAttribute('aria-pressed', false);
+    return;
+  }
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({video: {facingMode: 'environment', width: {ideal: 1280}}, audio: false});
+  } catch (err) {
+    $('camNote').textContent = 'Camera unavailable (' + err.name + '). Allow camera access, and use localhost or an https link.';
+    return;
+  }
+  $('video').srcObject = stream; await $('video').play();
+  $('cam').textContent = 'Turn camera off'; $('cam').setAttribute('aria-pressed', true);
+  $('camNote').textContent = 'Sending a frame every 2 seconds.';
+  timer = setInterval(sendFrame, 2000); sendFrame();
+};
+function sendFrame() {
+  const v = $('video'); if (!v.videoWidth) return;
+  const c = $('canvas'), w = 640, h = Math.round(w * v.videoHeight / v.videoWidth);
+  c.width = w; c.height = h; c.getContext('2d').drawImage(v, 0, 0, w, h);
+  send({type: 'frame', jpeg: c.toDataURL('image/jpeg', 0.7).split(',')[1]});
+}
+
+// ---------- voice (Chrome only; Deepgram replaces this on the glasses) ----------
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null;
+const WORDS = [[/\b(next|done|continue)\b/, 'next'], [/\b(back|previous)\b/, 'back'], [/\brepeat\b/, 'repeat'],
+               [/\b(more|detail|help)\b/, 'more'], [/\b(restart|start over)\b/, 'restart']];
+$('voice').onclick = () => {
+  if (!SR) { $('voice').textContent = 'Voice needs Chrome'; return; }
+  if (rec) { rec.onend = null; rec.stop(); rec = null; $('voice').textContent = 'Voice commands off'; $('voice').setAttribute('aria-pressed', false); return; }
+  rec = new SR(); rec.continuous = true; rec.lang = 'en-US';
+  rec.onresult = e => {
+    const said = e.results[e.results.length - 1][0].transcript.toLowerCase().trim();
+    if (/^(which|what|where|how|why|is|do|does|can)\b/.test(said)) return send({type: 'ask', text: said});
+    const hit = WORDS.find(([re]) => re.test(said));
+    if (hit) send({type: 'command', name: hit[1]});
+  };
+  rec.onend = () => rec && rec.start();
+  rec.start(); $('voice').textContent = 'Voice commands on'; $('voice').setAttribute('aria-pressed', true);
+};
+
+connect();
+</script>
+</body>
+</html>
