@@ -86,11 +86,11 @@ Built by five students from Columbia and NYU:
 
 | Name | GitHub | Studies |
 |---|---|---|
-| Jordan Mahmood | [@jordanmahmood](https://github.com/jordanmahmood) | Mathematics, New York University |
+| Jordan Mahmood | [@jordanmahmood](https://github.com/jordanmahmood) | BA Mathematics, New York University |
 | Riccardo Giovenzana | [@riccardogiovenzana04-dev](https://github.com/riccardogiovenzana04-dev) | MS Technology Management, Columbia University |
 | Vidher Singhal | [@vidher-notaprogrammer](https://github.com/vidher-notaprogrammer) | MS Technology Management, Columbia University |
 | Jonas (Zedong) Lin | [@JL12345555](https://github.com/JL12345555) | Integrated Design & Media (IDM), New York University |
-| Adil Inayat | [@ai2652-png](https://github.com/ai2652-png) | Computer Science, New York University |
+| Adil Inayat | [@ai2652-png](https://github.com/ai2652-png) | BA Computer Science, New York University |
 
 ## Hardware and vendor SDK
 
