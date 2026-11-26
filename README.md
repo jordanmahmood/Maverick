@@ -66,6 +66,9 @@ glasses (Android app)  ──frames / detections──▶  hub (FastAPI)  ──
 
 ## Run it
 
+See [the complete setup guide](docs/setup-guide.md) for prerequisites, Azure/OpenAI configuration,
+hub startup, Android device setup, calibration, guide loading, training, and troubleshooting.
+
 Needs [uv](https://docs.astral.sh/uv/), Node 20+, and an Azure OpenAI resource. Copy `.env.example` to `.env` and fill it in; without keys the step checker runs in mock mode.
 
 ```sh
